@@ -1,0 +1,40 @@
+Vagrant.configure(2) do |config|
+  config.vm.box = "ubuntu/trusty64"
+  config.vm.provider "virtualbox" do |vb|
+    vb.memory = 1024
+  end
+  config.vm.network "forwarded_port", guest: 5290, host: 5290
+  config.vm.network "private_network", ip: "192.168.33.10"
+  config.vm.provision "shell", inline: <<-SHELL
+    # http://goran-subotic.github.io/chat/2015/07/31/how_to_install_tigase_on_ubuntu.html
+    # install java8
+    sudo apt-get update
+    sudo apt-get install --yes python-software-properties
+    sudo apt-add-repository ppa:webupd8team/java
+    sudo apt-get update
+
+    # TODO DEBIAN_FRONTEND selects `no`...
+    # sudo apt-get install --yes oracle-java8-installer
+
+    # install mysql
+    sudo DEBIAN_FRONTEND=noninteractive apt-get install --yes mysql-server mysql-client
+
+    # install tigase
+    cd /tmp
+    wget https://projects.tigase.org/attachments/download/4621/tigase-server-7.0.4-b3844.jar
+    # java -jar tigase-server-7.0.4-b3844.jar -console
+    # > Enter path: /usr/lib/jvm/java-8-oracle
+    # > on
+    # > on
+    # > /home/vagrant/tigase-7.0.4
+    # > d
+    # > 0
+    # > 1 (select mysql)
+    # > off
+    # rewrite hosts
+    # ./scripts/tigase.sh start etc/tigase.conf
+  SHELL
+end
+
+# re-write jxt@3.0.7#L69
+# var JXTClass = this.getDefinition(xml.localName, xml.namespaceURI || 'jabber:client');
